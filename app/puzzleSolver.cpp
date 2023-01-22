@@ -1,78 +1,61 @@
 #include "puzzleSolver.hpp"
+#include <cmath>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
 
+bool verifySolution(std::string s1, std::string s2, std::string s3,
+                    const std::unordered_map<char, unsigned> &mapping) {
+
+  // Create an unsigned int for each string
+  unsigned int s1Num = 0, s2Num = 0, s3Num = 0;
+
+  // Loop through each string and add the value to its respective unsigned int
+  // The value is multiplied by 10 to the power of the length of the string
+  // minus the current index minus 1 to get the correct place value of each
+  // value
+  for (int i = 0; i < s1.length(); i++) {
+    s1Num += mapping.at(s1[i]) * pow(10, s1.length() - i - 1);
+  }
+
+  for (int i = 0; i < s2.length(); i++) {
+    s2Num += mapping.at(s2[i]) * pow(10, s2.length() - i - 1);
+  }
+
+  for (int i = 0; i < s3.length(); i++) {
+    s3Num += mapping.at(s3[i]) * pow(10, s3.length() - i - 1);
+  }
+
+  // If the sum of s1Num and s2Num is equal to s3Num, return true
+  // Else return false
+  if ((s1Num + s2Num) == s3Num) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
 bool backtrack(const std::string s1, const std::string s2, const std::string s3,
                std::unordered_map<char, unsigned> &mapping,
                std::unordered_set<unsigned> &numbers,
-               std::unordered_set<char> &letters, unsigned int remainder) {
+               std::unordered_set<char> &letters) {
 
-  if (letters.size() == mapping.size()) {
-    return true;
+  if (mapping.size() == letters.size()) {
+    return verifySolution(s1, s2, s3, mapping);
   }
 
-  unsigned int s1Value, s2Value, s3Value;
-  if (!s1.empty()) {
-    if (mapping.find(s1[s1.length() - 1]) != mapping.end()) {
-      s1Value = mapping[s1[s1.length() - 1]];
-    } else {
-      for (auto value : numbers) {
-        mapping[s1[s1.length() - 1]] = value;
-        numbers.erase(value);
-        if (backtrack(s1, s2, s3, mapping, numbers, letters, remainder)) {
-          return true;
-        }
-        numbers.insert(value);
-        mapping.erase(s1[s1.length() - 1]);
+  for (auto &v : letters) {
+    if (mapping.find(v) == mapping.end()) {
+      unsigned int num = *numbers.begin();
+      numbers.erase(numbers.begin());
+      mapping[v] = num;
+
+      if (backtrack(s1, s2, s3, mapping, numbers, letters)) {
+        return true;
+      } else {
+        mapping.erase(v);
+        numbers.insert(num);
       }
-    }
-  } else {
-    s1Value = 0;
-  }
-
-  if (!s2.empty()) {
-    if (mapping.find(s2[s2.length() - 1]) != mapping.end()) {
-      s2Value = mapping[s2[s2.length() - 1]];
-    } else {
-      for (auto value : numbers) {
-        mapping[s2[s2.length() - 1]] = value;
-        numbers.erase(value);
-        if (backtrack(s1, s2, s3, mapping, numbers, letters, remainder)) {
-          return true;
-        }
-        numbers.insert(value);
-        mapping.erase(s2[s2.length() - 1]);
-      }
-    }
-  } else {
-    s2Value = 0;
-  }
-
-  if (!s3.empty()) {
-    if (mapping.find(s3[s3.length() - 1]) != mapping.end()) {
-      s3Value = mapping[s3[s3.length() - 1]];
-    } else {
-      for (auto value : numbers) {
-        mapping[s3[s3.length() - 1]] = value;
-        numbers.erase(value);
-        if (backtrack(s1, s2, s3, mapping, numbers, letters, remainder)) {
-          return true;
-        }
-        numbers.insert(value);
-        mapping.erase(s3[s3.length() - 1]);
-      }
-    }
-  } else {
-    s3Value = 0;
-  }
-
-  if ((remainder + s1Value + s2Value) % 10 == s3Value) {
-
-    if (backtrack(s1.substr(0, s1.length() - 1), s2.substr(0, s2.length() - 1),
-                  s3.substr(0, s3.length() - 1), mapping, numbers, letters,
-                  ((remainder + s1Value + s2Value) / 10))) {
-      return true;
     }
   }
   return false;
@@ -94,5 +77,5 @@ bool puzzleSolver(const std::string &s1, const std::string &s2,
     letters.insert(s3[i]);
   }
 
-  return backtrack(s1, s2, s3, mapping, numbers, letters, 0);
+  return backtrack(s1, s2, s3, mapping, numbers, letters);
 }
