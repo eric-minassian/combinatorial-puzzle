@@ -2,11 +2,4 @@
 // Or better yet, use gtest to automate your own test cases!
 // Remember, we use gtest to grade, not your main.
 
-int main()
-{
-
-    return 0;
-}
-
-
-
+int main() { return 0; }
