@@ -1,81 +1,89 @@
-#include "puzzleSolver.hpp"
-#include <cmath>
+#include <set>
 #include <string>
 #include <unordered_map>
-#include <unordered_set>
 
-bool verifySolution(std::string s1, std::string s2, std::string s3,
-                    const std::unordered_map<char, unsigned> &mapping) {
+// Helper function to check if the mapping is correct
+bool isCorrect(const std::string &word1, const std::string &word2,
+               const std::string &word3,
+               const std::unordered_map<char, unsigned> &dct) {
+  int num1 = 0, num2 = 0, num3 = 0;
 
-  // Create an unsigned int for each string
-  unsigned int s1Num = 0, s2Num = 0, s3Num = 0;
-
-  // Loop through each string and add the value to its respective unsigned int
-  // The value is multiplied by 10 to the power of the length of the string
-  // minus the current index minus 1 to get the correct place value of each
-  // value
-  for (int i = 0; i < s1.length(); i++) {
-    s1Num += mapping.at(s1[i]) * pow(10, s1.length() - i - 1);
+  for (const auto &v : word1) {
+    num1 = num1 * 10 + dct.at(v);
   }
 
-  for (int i = 0; i < s2.length(); i++) {
-    s2Num += mapping.at(s2[i]) * pow(10, s2.length() - i - 1);
+  for (const auto &v : word2) {
+    num2 = num2 * 10 + dct.at(v);
   }
 
-  for (int i = 0; i < s3.length(); i++) {
-    s3Num += mapping.at(s3[i]) * pow(10, s3.length() - i - 1);
+  for (const auto &v : word3) {
+    num3 = num3 * 10 + dct.at(v);
   }
 
-  // If the sum of s1Num and s2Num is equal to s3Num, return true
-  // Else return false
-  if ((s1Num + s2Num) == s3Num) {
-    return true;
-  } else {
-    return false;
-  }
+  return num1 + num2 == num3;
 }
 
-bool backtrack(const std::string s1, const std::string s2, const std::string s3,
+// Recursive helper function to solve the puzzle
+bool backtrack(const std::string &s1, const std::string &s2,
+               const std::string &s3,
                std::unordered_map<char, unsigned> &mapping,
-               std::unordered_set<unsigned> &numbers,
-               std::unordered_set<char> &letters) {
+               std::set<unsigned> &numbers, std::set<char> &letters) {
 
-  if (mapping.size() == letters.size()) {
-    return verifySolution(s1, s2, s3, mapping);
+  // Base Case
+  // If all the letters are mapped to a number then run the isCorrect function
+  // and return the result
+  if (letters.empty()) {
+    return isCorrect(s1, s2, s3, mapping);
   }
 
-  for (auto &v : letters) {
-    if (mapping.find(v) == mapping.end()) {
-      unsigned int num = *numbers.begin();
-      numbers.erase(numbers.begin());
-      mapping[v] = num;
+  // Recursive Case
+  // For each letter in the set of letters, try to map it to each number in the
+  // set of available numbers
 
-      if (backtrack(s1, s2, s3, mapping, numbers, letters)) {
-        return true;
-      } else {
-        mapping.erase(v);
-        numbers.insert(num);
-      }
+  // Remove the letter from the set of letters
+  auto letter = *letters.begin();
+  letters.erase(letters.begin());
+
+  // Try to map the letter to each number in the set of available numbers
+  for (const auto &num : numbers) {
+    auto remaining_numbers = numbers;
+    remaining_numbers.erase(num);
+    mapping[letter] = num;
+
+    // Recursively call the function with the updated mapping and sets
+    // If the recursive call returns true, then return true
+    if (backtrack(s1, s2, s3, mapping, remaining_numbers, letters)) {
+      return true;
     }
   }
+
+  // If the letter cannot be mapped to any available numbers, then add it back
+  // to the set
+  letters.insert(letter);
   return false;
 }
 
-bool puzzleSolver(const std::string &s1, const std::string &s2,
-                  const std::string &s3,
+// Function to solve the puzzle problem
+bool puzzleSolver(const std::string &word1, const std::string &word2,
+                  const std::string &word3,
                   std::unordered_map<char, unsigned> &mapping) {
-  std::unordered_set<unsigned int> numbers = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-  std::unordered_set<char> letters;
-  for (unsigned short i = 0; i < s1.length(); i++) {
-    letters.insert(s1[i]);
+
+  // Create a set of all the number possibilities
+  // Create a set of all the different letters to be assigned a value
+  std::set<char> letters;
+  std::set<unsigned> numbers = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+
+  // Add the letters to the set
+  for (const auto &l : word1) {
+    letters.insert(l);
   }
-  for (unsigned short i = 0; i < s2.length(); i++) {
-    letters.insert(s2[i]);
+  for (const auto &l : word2) {
+    letters.insert(l);
+  }
+  for (const auto &l : word3) {
+    letters.insert(l);
   }
 
-  for (unsigned short i = 0; i < s3.length(); i++) {
-    letters.insert(s3[i]);
-  }
-
-  return backtrack(s1, s2, s3, mapping, numbers, letters);
+  // Call the recursive helper function and return result
+  return backtrack(word1, word2, word3, mapping, numbers, letters);
 }
