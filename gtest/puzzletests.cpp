@@ -77,4 +77,12 @@ TEST(puzzleSolver, Additional4) {
   EXPECT_TRUE(p1 and gradeYesAnswer("LARRY", "CARTER", "LEGEND", puzzle));
 }
 
+TEST(puzzleSolver, Additional5) {
+
+  std::unordered_map<char, unsigned> puzzle;
+
+  bool p1 = puzzleSolver("A", "A", "A", puzzle);
+  EXPECT_TRUE(p1 and gradeYesAnswer("A", "A", "A", puzzle));
+}
+
 } // end namespace
