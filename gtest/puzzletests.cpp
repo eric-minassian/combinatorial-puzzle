@@ -61,4 +61,20 @@ TEST(puzzleSolver, Additional2) {
   EXPECT_FALSE(p1);
 }
 
+TEST(puzzleSolver, Additional3) {
+
+  std::unordered_map<char, unsigned> puzzle;
+
+  bool p1 = puzzleSolver("CENTER", "CENTRAL", "CENTRIC", puzzle);
+  EXPECT_FALSE(p1);
+}
+
+TEST(puzzleSolver, Additional4) {
+
+  std::unordered_map<char, unsigned> puzzle;
+
+  bool p1 = puzzleSolver("LARRY", "CARTER", "LEGEND", puzzle);
+  EXPECT_TRUE(p1 and gradeYesAnswer("LARRY", "CARTER", "LEGEND", puzzle));
+}
+
 } // end namespace
