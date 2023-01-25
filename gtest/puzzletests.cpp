@@ -85,4 +85,29 @@ TEST(puzzleSolver, Additional5) {
   EXPECT_TRUE(p1 and gradeYesAnswer("A", "A", "A", puzzle));
 }
 
+TEST(puzzleSolver, Additional6) {
+
+  std::unordered_map<char, unsigned> puzzle;
+
+  bool p1 = puzzleSolver("RTYWTTROPT", "OTRYERTQW", "TEPTPUIEPY", puzzle);
+  EXPECT_TRUE(p1 and
+              gradeYesAnswer("RTYWTTROPT", "OTRYERTQW", "TEPTPUIEPY", puzzle));
+}
+
+TEST(puzzleSolver, Additional7) {
+
+  std::unordered_map<char, unsigned> puzzle;
+
+  bool p1 = puzzleSolver("QYRYERTQW", "ITYWQOROQT", "TERQPUEIYP", puzzle);
+  EXPECT_FALSE(p1);
+}
+
+TEST(puzzleSolver, Additional8) {
+
+  std::unordered_map<char, unsigned> puzzle;
+
+  bool p1 = puzzleSolver("ABCDE", "FGHIJ", "MHJBCE", puzzle);
+  EXPECT_FALSE(p1);
+}
+
 } // end namespace
